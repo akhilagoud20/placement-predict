@@ -20,7 +20,8 @@ def load_and_validate_data(file_path: str) -> pd.DataFrame:
     required_columns = [
         "branch",
         "college_tier",
-        "cgpa",
+        "cgpa",eda.py
+        
         "backlogs",
         "coding_skills",
         "communication_skills",
