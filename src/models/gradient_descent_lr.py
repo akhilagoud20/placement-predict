@@ -1,12 +1,21 @@
 # LAB 5
 # Linear Regression using Gradient Descent
-# 6 Graphs + Scikit-learn Comparison
+# Lab 5 - 6 Graphs + Scikit-learn Comparison
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
+
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
+
+
+# ============================================================
+# CREATE FOLDER FOR GRAPHS
+# ============================================================
+
+os.makedirs("reports/figures", exist_ok=True)
 
 
 # ============================================================
@@ -50,12 +59,22 @@ print("Testing samples :", len(X_test))
 # ============================================================
 
 plt.figure(figsize=(8, 5))
+
 plt.scatter(X, y)
+
 plt.xlabel("Hours Studied")
 plt.ylabel("Marks")
 plt.title("Original Dataset")
 plt.grid()
+
+plt.savefig(
+    "reports/figures/graph1_original_dataset.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
 plt.show()
+plt.close()
 
 
 # ============================================================
@@ -69,7 +88,8 @@ X_train_scaled = (X_train - mean_X) / std_X
 X_test_scaled = (X_test - mean_X) / std_X
 
 
-# Add bias
+# Add bias column
+
 X_train_b = np.c_[
     np.ones(X_train_scaled.shape[0]),
     X_train_scaled
@@ -88,6 +108,7 @@ X_test_b = np.c_[
 def compute_cost(X, y, weights):
 
     predictions = X @ weights
+
     error = predictions - y
 
     cost = (1 / (2 * len(y))) * np.sum(error ** 2)
@@ -115,7 +136,11 @@ def gradient_descent(X, y, learning_rate, iterations):
 
         weights = weights - learning_rate * gradient
 
-        cost = compute_cost(X, y, weights)
+        cost = compute_cost(
+            X,
+            y,
+            weights
+        )
 
         cost_history.append(cost)
 
@@ -132,6 +157,7 @@ iterations = 1000
 
 results = {}
 
+
 for lr in learning_rates:
 
     weights, cost_history = gradient_descent(
@@ -143,9 +169,15 @@ for lr in learning_rates:
 
     predictions = X_test_b @ weights
 
-    mse = mean_squared_error(y_test, predictions)
+    mse = mean_squared_error(
+        y_test,
+        predictions
+    )
 
-    r2 = r2_score(y_test, predictions)
+    r2 = r2_score(
+        y_test,
+        predictions
+    )
 
     results[lr] = {
         "weights": weights,
@@ -165,13 +197,23 @@ for lr in learning_rates:
 
 plt.figure(figsize=(8, 5))
 
-plt.plot(results[0.001]["cost_history"])
+plt.plot(
+    results[0.001]["cost_history"]
+)
 
 plt.xlabel("Iterations")
 plt.ylabel("Cost")
 plt.title("Cost History - Learning Rate 0.001")
 plt.grid()
+
+plt.savefig(
+    "reports/figures/graph2_cost_lr_0.001.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
 plt.show()
+plt.close()
 
 
 # ============================================================
@@ -180,13 +222,23 @@ plt.show()
 
 plt.figure(figsize=(8, 5))
 
-plt.plot(results[0.01]["cost_history"])
+plt.plot(
+    results[0.01]["cost_history"]
+)
 
 plt.xlabel("Iterations")
 plt.ylabel("Cost")
 plt.title("Cost History - Learning Rate 0.01")
 plt.grid()
+
+plt.savefig(
+    "reports/figures/graph3_cost_lr_0.01.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
 plt.show()
+plt.close()
 
 
 # ============================================================
@@ -195,13 +247,23 @@ plt.show()
 
 plt.figure(figsize=(8, 5))
 
-plt.plot(results[0.1]["cost_history"])
+plt.plot(
+    results[0.1]["cost_history"]
+)
 
 plt.xlabel("Iterations")
 plt.ylabel("Cost")
 plt.title("Cost History - Learning Rate 0.1")
 plt.grid()
+
+plt.savefig(
+    "reports/figures/graph4_cost_lr_0.1.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
 plt.show()
+plt.close()
 
 
 # ============================================================
@@ -238,10 +300,16 @@ print("R2:", numpy_r2)
 # GRAPH 5: NUMPY GRADIENT DESCENT
 # ============================================================
 
-sort_index = np.argsort(X_test[:, 0])
+sort_index = np.argsort(
+    X_test[:, 0]
+)
 
 X_sorted = X_test[sort_index]
-numpy_sorted = numpy_predictions[sort_index]
+
+numpy_sorted = numpy_predictions[
+    sort_index
+]
+
 
 plt.figure(figsize=(8, 5))
 
@@ -259,11 +327,22 @@ plt.plot(
 
 plt.xlabel("Hours Studied")
 plt.ylabel("Marks")
-plt.title("NumPy Gradient Descent Regression")
+
+plt.title(
+    "NumPy Gradient Descent Regression"
+)
 
 plt.legend()
 plt.grid()
+
+plt.savefig(
+    "reports/figures/graph5_numpy_regression.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
 plt.show()
+plt.close()
 
 
 # ============================================================
@@ -272,9 +351,14 @@ plt.show()
 
 sk_model = LinearRegression()
 
-sk_model.fit(X_train, y_train)
+sk_model.fit(
+    X_train,
+    y_train
+)
 
-sk_predictions = sk_model.predict(X_test)
+sk_predictions = sk_model.predict(
+    X_test
+)
 
 sk_mse = mean_squared_error(
     y_test,
@@ -286,21 +370,42 @@ sk_r2 = r2_score(
     sk_predictions
 )
 
+
 print("\nScikit-learn Linear Regression")
 
-print("Coefficient:", sk_model.coef_[0])
-print("Intercept:", sk_model.intercept_)
+print(
+    "Coefficient:",
+    sk_model.coef_[0]
+)
 
-print("MSE:", sk_mse)
-print("R2:", sk_r2)
+print(
+    "Intercept:",
+    sk_model.intercept_
+)
+
+print(
+    "MSE:",
+    sk_mse
+)
+
+print(
+    "R2:",
+    sk_r2
+)
 
 
 # ============================================================
 # GRAPH 6: NUMPY VS SCIKIT-LEARN
 # ============================================================
 
-numpy_sorted = numpy_predictions[sort_index]
-sk_sorted = sk_predictions[sort_index]
+numpy_sorted = numpy_predictions[
+    sort_index
+]
+
+sk_sorted = sk_predictions[
+    sort_index
+]
+
 
 plt.figure(figsize=(8, 5))
 
@@ -326,12 +431,21 @@ plt.plot(
 plt.xlabel("Hours Studied")
 plt.ylabel("Marks")
 
-plt.title("NumPy vs Scikit-learn Linear Regression")
+plt.title(
+    "NumPy vs Scikit-learn Linear Regression"
+)
 
 plt.legend()
 plt.grid()
 
+plt.savefig(
+    "reports/figures/graph6_numpy_vs_sklearn.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
 plt.show()
+plt.close()
 
 
 # ============================================================
@@ -342,26 +456,36 @@ print("\n==========================================")
 print("FINAL SUMMARY")
 print("==========================================")
 
-print("Best Learning Rate:", best_lr)
+print(
+    "Best Learning Rate:",
+    best_lr
+)
 
 print("\nNumPy Gradient Descent:")
-print("MSE:", numpy_mse)
-print("R2 :", numpy_r2)
+
+print(
+    "MSE:",
+    numpy_mse
+)
+
+print(
+    "R2 :",
+    numpy_r2
+)
 
 print("\nScikit-learn:")
-print("MSE:", sk_mse)
-print("R2 :", sk_r2)
 
-print("\nLab 5 completed successfully!")
-plt.savefig("reports/figures/graph1_original_dataset.png")
-plt.show()
-plt.savefig("reports/figures/graph2_cost_lr_0.001.png")
-plt.show()
-plt.savefig("reports/figures/graph3_cost_lr_0.01.png")
-plt.show()
-plt.savefig("reports/figures/graph4_cost_lr_0.1.png")
-plt.show()
-plt.savefig("reports/figures/graph4_cost_lr_0.1.png")
-plt.show()
-plt.savefig("reports/figures/graph6_numpy_vs_sklearn.png")
-plt.show()
+print(
+    "MSE:",
+    sk_mse
+)
+
+print(
+    "R2 :",
+    sk_r2
+)
+
+print("\n==========================================")
+print("Lab 5 completed successfully!")
+print("All 6 graphs saved in reports/figures")
+print("==========================================")
