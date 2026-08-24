@@ -1,10 +1,6 @@
 # LAB 5
 # Linear Regression using Gradient Descent
-# Pure NumPy Implementation
-# Learning Rate Experimentation
-# 80/20 Train-Test Split
-# Cost History Plot
-# Comparison with Scikit-learn
+# 6 Graphs + Scikit-learn Comparison
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,10 +10,9 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 
 # ============================================================
-# STEP 1: Create Dataset
+# STEP 1: DATASET
 # ============================================================
 
-# Hours studied
 X = np.array([
     1, 2, 3, 4, 5,
     6, 7, 8, 9, 10,
@@ -25,7 +20,6 @@ X = np.array([
     16, 17, 18, 19, 20
 ], dtype=float)
 
-# Marks obtained
 y = np.array([
     35, 40, 45, 50, 55,
     60, 65, 70, 75, 80,
@@ -33,12 +27,11 @@ y = np.array([
     94, 95, 96, 98, 100
 ], dtype=float)
 
-# Convert X into 2D array
 X = X.reshape(-1, 1)
 
 
 # ============================================================
-# STEP 2: 80/20 Train-Test Split
+# STEP 2: 80/20 TRAIN-TEST SPLIT
 # ============================================================
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -48,15 +41,25 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42
 )
 
-print("==========================================")
-print("80/20 TRAIN-TEST SPLIT")
-print("==========================================")
 print("Training samples:", len(X_train))
 print("Testing samples :", len(X_test))
 
 
 # ============================================================
-# STEP 3: Standardize Training Data
+# GRAPH 1: ORIGINAL DATASET
+# ============================================================
+
+plt.figure(figsize=(8, 5))
+plt.scatter(X, y)
+plt.xlabel("Hours Studied")
+plt.ylabel("Marks")
+plt.title("Original Dataset")
+plt.grid()
+plt.show()
+
+
+# ============================================================
+# STEP 3: STANDARDIZATION
 # ============================================================
 
 mean_X = np.mean(X_train)
@@ -66,13 +69,7 @@ X_train_scaled = (X_train - mean_X) / std_X
 X_test_scaled = (X_test - mean_X) / std_X
 
 
-# ============================================================
-# STEP 4: Add Bias Column
-# ============================================================
-
-# Model:
-# y = w0 + w1*x
-
+# Add bias
 X_train_b = np.c_[
     np.ones(X_train_scaled.shape[0]),
     X_train_scaled
@@ -85,13 +82,12 @@ X_test_b = np.c_[
 
 
 # ============================================================
-# STEP 5: Cost Function
+# STEP 4: COST FUNCTION
 # ============================================================
 
 def compute_cost(X, y, weights):
 
     predictions = X @ weights
-
     error = predictions - y
 
     cost = (1 / (2 * len(y))) * np.sum(error ** 2)
@@ -100,32 +96,25 @@ def compute_cost(X, y, weights):
 
 
 # ============================================================
-# STEP 6: Gradient Descent
+# STEP 5: GRADIENT DESCENT
 # ============================================================
 
 def gradient_descent(X, y, learning_rate, iterations):
 
-    # Initialize weights
     weights = np.zeros(X.shape[1])
 
-    # Store cost for every iteration
     cost_history = []
 
     for i in range(iterations):
 
-        # Prediction
         predictions = X @ weights
 
-        # Error
         error = predictions - y
 
-        # Gradient
         gradient = (1 / len(y)) * (X.T @ error)
 
-        # Update weights
         weights = weights - learning_rate * gradient
 
-        # Calculate cost
         cost = compute_cost(X, y, weights)
 
         cost_history.append(cost)
@@ -134,7 +123,7 @@ def gradient_descent(X, y, learning_rate, iterations):
 
 
 # ============================================================
-# STEP 7: Learning Rate Experimentation
+# STEP 6: LEARNING RATE EXPERIMENTATION
 # ============================================================
 
 learning_rates = [0.001, 0.01, 0.1]
@@ -142,7 +131,6 @@ learning_rates = [0.001, 0.01, 0.1]
 iterations = 1000
 
 results = {}
-
 
 for lr in learning_rates:
 
@@ -153,11 +141,10 @@ for lr in learning_rates:
         iterations
     )
 
-    # Prediction on test data
     predictions = X_test_b @ weights
 
-    # Calculate performance
     mse = mean_squared_error(y_test, predictions)
+
     r2 = r2_score(y_test, predictions)
 
     results[lr] = {
@@ -167,37 +154,58 @@ for lr in learning_rates:
         "r2": r2
     }
 
-    print("\n------------------------------------------")
-    print("Learning Rate:", lr)
-    print("Weights:", weights)
+    print("\nLearning Rate:", lr)
     print("MSE:", mse)
     print("R2 Score:", r2)
 
 
 # ============================================================
-# STEP 8: Plot Cost History
+# GRAPH 2: LEARNING RATE 0.001
 # ============================================================
 
 plt.figure(figsize=(8, 5))
 
-for lr in learning_rates:
-
-    plt.plot(
-        results[lr]["cost_history"],
-        label="Learning Rate = " + str(lr)
-    )
+plt.plot(results[0.001]["cost_history"])
 
 plt.xlabel("Iterations")
 plt.ylabel("Cost")
-plt.title("Cost History for Different Learning Rates")
-plt.legend()
+plt.title("Cost History - Learning Rate 0.001")
 plt.grid()
-
 plt.show()
 
 
 # ============================================================
-# STEP 9: Select Best Learning Rate
+# GRAPH 3: LEARNING RATE 0.01
+# ============================================================
+
+plt.figure(figsize=(8, 5))
+
+plt.plot(results[0.01]["cost_history"])
+
+plt.xlabel("Iterations")
+plt.ylabel("Cost")
+plt.title("Cost History - Learning Rate 0.01")
+plt.grid()
+plt.show()
+
+
+# ============================================================
+# GRAPH 4: LEARNING RATE 0.1
+# ============================================================
+
+plt.figure(figsize=(8, 5))
+
+plt.plot(results[0.1]["cost_history"])
+
+plt.xlabel("Iterations")
+plt.ylabel("Cost")
+plt.title("Cost History - Learning Rate 0.1")
+plt.grid()
+plt.show()
+
+
+# ============================================================
+# STEP 7: BEST MODEL
 # ============================================================
 
 best_lr = min(
@@ -207,29 +215,7 @@ best_lr = min(
 
 best_weights = results[best_lr]["weights"]
 
-print("\n==========================================")
-print("BEST GRADIENT DESCENT MODEL")
-print("==========================================")
-
-print("Best Learning Rate:", best_lr)
-print("Best Weights:", best_weights)
-
-
-# ============================================================
-# STEP 10: NumPy Gradient Descent Predictions
-# ============================================================
-
 numpy_predictions = X_test_b @ best_weights
-
-print("\n==========================================")
-print("NUMPY GRADIENT DESCENT RESULTS")
-print("==========================================")
-
-print("Actual Values:")
-print(y_test)
-
-print("\nPredicted Values:")
-print(numpy_predictions)
 
 numpy_mse = mean_squared_error(
     y_test,
@@ -241,27 +227,54 @@ numpy_r2 = r2_score(
     numpy_predictions
 )
 
-print("\nMSE:", numpy_mse)
-print("R2 Score:", numpy_r2)
+print("\nBest Learning Rate:", best_lr)
+
+print("\nNumPy Gradient Descent")
+print("MSE:", numpy_mse)
+print("R2:", numpy_r2)
 
 
 # ============================================================
-# STEP 11: Scikit-learn Linear Regression
+# GRAPH 5: NUMPY GRADIENT DESCENT
+# ============================================================
+
+sort_index = np.argsort(X_test[:, 0])
+
+X_sorted = X_test[sort_index]
+numpy_sorted = numpy_predictions[sort_index]
+
+plt.figure(figsize=(8, 5))
+
+plt.scatter(
+    X_test,
+    y_test,
+    label="Actual Data"
+)
+
+plt.plot(
+    X_sorted,
+    numpy_sorted,
+    label="Gradient Descent"
+)
+
+plt.xlabel("Hours Studied")
+plt.ylabel("Marks")
+plt.title("NumPy Gradient Descent Regression")
+
+plt.legend()
+plt.grid()
+plt.show()
+
+
+# ============================================================
+# STEP 8: SCIKIT-LEARN
 # ============================================================
 
 sk_model = LinearRegression()
 
-sk_model.fit(
-    X_train,
-    y_train
-)
+sk_model.fit(X_train, y_train)
 
 sk_predictions = sk_model.predict(X_test)
-
-
-# ============================================================
-# STEP 12: Scikit-learn Results
-# ============================================================
 
 sk_mse = mean_squared_error(
     y_test,
@@ -273,37 +286,21 @@ sk_r2 = r2_score(
     sk_predictions
 )
 
-print("\n==========================================")
-print("SCIKIT-LEARN LINEAR REGRESSION")
-print("==========================================")
+print("\nScikit-learn Linear Regression")
 
 print("Coefficient:", sk_model.coef_[0])
 print("Intercept:", sk_model.intercept_)
 
 print("MSE:", sk_mse)
-print("R2 Score:", sk_r2)
+print("R2:", sk_r2)
 
 
 # ============================================================
-# STEP 13: Model Comparison
+# GRAPH 6: NUMPY VS SCIKIT-LEARN
 # ============================================================
 
-print("\n==========================================")
-print("MODEL COMPARISON")
-print("==========================================")
-
-print("\nNumPy Gradient Descent")
-print("MSE      :", numpy_mse)
-print("R2 Score :", numpy_r2)
-
-print("\nScikit-learn")
-print("MSE      :", sk_mse)
-print("R2 Score :", sk_r2)
-
-
-# ============================================================
-# STEP 14: Plot Regression Comparison
-# ============================================================
+numpy_sorted = numpy_predictions[sort_index]
+sk_sorted = sk_predictions[sort_index]
 
 plt.figure(figsize=(8, 5))
 
@@ -312,14 +309,6 @@ plt.scatter(
     y_test,
     label="Actual Data"
 )
-
-# Sort values for proper line plotting
-sort_index = np.argsort(X_test[:, 0])
-
-X_sorted = X_test[sort_index]
-
-numpy_sorted = numpy_predictions[sort_index]
-sk_sorted = sk_predictions[sort_index]
 
 plt.plot(
     X_sorted,
@@ -336,7 +325,8 @@ plt.plot(
 
 plt.xlabel("Hours Studied")
 plt.ylabel("Marks")
-plt.title("Linear Regression: NumPy vs Scikit-learn")
+
+plt.title("NumPy vs Scikit-learn Linear Regression")
 
 plt.legend()
 plt.grid()
@@ -345,7 +335,7 @@ plt.show()
 
 
 # ============================================================
-# STEP 15: Final Summary
+# FINAL RESULTS
 # ============================================================
 
 print("\n==========================================")
